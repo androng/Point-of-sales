@@ -10,7 +10,7 @@ enum registerStates {
     stateIEEEMember, 
     stateConfirmOrder,
     statePrintingReceipt,
-    statePromptAnotherSale,
+    statePromptAnotherReceipt,
     statePrintTestReceipt
 };
 
@@ -92,10 +92,10 @@ void registerSM() {
             printReceipt(customerName, cashierName);
             
             break;
-        case statePromptAnotherSale: {
+        case statePromptAnotherReceipt: {
             lcd.clear();
             lcd.setCursor(0, 1);
-            lcd.print(F("New sale? Press y:"));
+            lcd.print(F("Reprint receipt?(n):"));
             LCDinputPrompt(3);
         }
             break;
@@ -272,11 +272,15 @@ void registerSM() {
         changeRegisterState(statePrintingReceipt);
         break;
     case statePrintingReceipt:
-        changeRegisterState(statePromptAnotherSale);
+        changeRegisterState(statePromptAnotherReceipt);
         break;
-    case statePromptAnotherSale: 
+    case statePromptAnotherReceipt: 
         if(LCDinputPrompt(-1) == 1){
             if(LCDpromptYN() == 1){
+                /* Print another receipt. */
+                changeRegisterState(statePrintingReceipt);
+            }
+            else {
                 /* Reset everything */  
                 itemQuantity = 1;
                 customerName = "";
@@ -284,10 +288,6 @@ void registerSM() {
                 applyMemberDiscount = false;
                 total = 0;
                 changeRegisterState(stateInputCustomerName);
-            }
-            else {
-                /* Prompt again. */
-                changeRegisterState(statePromptAnotherSale);
             }
         }
         break;  
